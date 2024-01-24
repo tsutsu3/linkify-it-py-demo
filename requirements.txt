@@ -1,0 +1,4 @@
+Flask
+mdurl
+pydantic
+linkify-it-py
