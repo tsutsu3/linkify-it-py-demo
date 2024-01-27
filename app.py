@@ -1,4 +1,3 @@
-import html
 import re
 
 import mdurl
@@ -20,10 +19,19 @@ class Response(BaseModel):
     data: str
 
 
+def escape(s: str) -> str:
+    # `html.escape` converts the double quotation mark (")
+    # return html.escape(str)
+    s = s.replace("&", "&amp;")
+    s = s.replace("<", "&lt;")
+    s = s.replace(">", "&gt;")
+    return s
+
+
 @app.route("/convert", methods=["POST"])
 def convert():
     text = Request(**request.get_json())
-    escaped_text = html.escape(text.data)
+    escaped_text = escape(text.data)
     matches = linkify.match(text.data)
 
     if not matches:
@@ -33,16 +41,18 @@ def convert():
     last = 0
     for match in matches:
         if last < match.index:
-            result.append(re.sub(r"\r?\n", "<br>", text.data[last : match.index]))
+            result.append(
+                re.sub(r"\r?\n", "<br>", escape(text.data[last : match.index]))
+            )
         result.append('<a target="_blank" href="')
-        result.append(html.escape(match.url))
+        result.append(escape(match.url))
         result.append('">')
-        result.append(html.escape(match.text))
+        result.append(escape(match.text))
         result.append("</a>")
         last = match.last_index
 
     if last < len(text.data):
-        result.append(re.sub(r"\r?\n", "<br>", text.data[last:]))
+        result.append(re.sub(r"\r?\n", "<br>", escape(text.data[last:])))
     linked_escaped_text = "".join(result)
 
     return Response(data=linked_escaped_text).model_dump_json()
