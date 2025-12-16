@@ -1,3 +1,10 @@
+[project]
+name = "tsutsu3"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = ["flask", "pydantic", "mdurl", "linkify-it-py"]
+
+
 [tool.isort]
 multi_line_output = 3
 include_trailing_comma = true
