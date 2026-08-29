@@ -1,5 +1,7 @@
 "use strict";
 
+let convertTimer = null;
+
 function errorAlert(status, statusText) {
   const errorMessage = status + ": " + statusText;
   $("#errorAlert").show();
@@ -34,7 +36,7 @@ function permalink() {
         history.pushState(
           "",
           document.title,
-          window.location.pathname + window.location.search
+          window.location.pathname + window.location.search,
         );
         window.location.reload(true);
       } else {
@@ -64,6 +66,13 @@ function decode(inputText) {
   });
 }
 
+function debounceConvert() {
+  clearTimeout(convertTimer);
+  convertTimer = setTimeout(function () {
+    convert();
+  }, 300);
+}
+
 $(document).ready(function () {
   // Restore content if opened by permalink
   if (location.hash && /^(#t1=)/.test(location.hash)) {
@@ -71,10 +80,9 @@ $(document).ready(function () {
     decode(location.hash.slice(4));
   }
 
-  $("#convertButton").click(function (e) {
-    e.preventDefault();
-    convert();
-  });
+  debounceConvert();
+
+  $("#inputText").on("input", debounceConvert);
 
   $("#permalink").click(function (e) {
     e.preventDefault();
